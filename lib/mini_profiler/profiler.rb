@@ -139,7 +139,9 @@ module Rack
     end
 
     def serve_html(env)
-      file_name = env['PATH_INFO'][(@config.base_url_path.length)..1000]
+      #file_name = env['PATH_INFO'][(@config.base_url_path.length)..1000]
+      Regexp.new("#{@config.base_url_path}(.*)$") =~ env['PATH_INFO']
+      file_name = $1[0..1000]
 
       return serve_results(env) if file_name.eql?('results')
 
@@ -197,8 +199,9 @@ module Rack
         return [status,headers,body]
       end
 
+
       # handle all /mini-profiler requests here
-      return serve_html(env) if path.start_with? @config.base_url_path
+      return serve_html(env) if path.include?(@config.base_url_path)
 
       has_disable_cookie = client_settings.disable_profiling?
       # manual session disable / enable
